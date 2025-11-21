@@ -10,6 +10,8 @@ from process_data import *
 from scrape_schedules import get_park_soup, get_skate_schedule
 
 def populate_data():
+    if not os.path.exists('data'):
+        os.mkdir('data')
     if len(os.listdir('data')) == 0:
         get_rinks_data()
     return None
