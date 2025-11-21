@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from selenium.common import NoSuchDriverException
 import pandas as pd
 import io
 
@@ -12,15 +11,15 @@ def get_park_soup(park_id: int) -> BeautifulSoup:
         options = webdriver.FirefoxOptions()
         options.add_argument("-headless")
         driver = webdriver.Firefox(options=options)
-    except NoSuchDriverException:
+    except:
         try:
             options = webdriver.ChromeOptions()
             options.add_argument("--headless=new")
             driver = webdriver.Chrome(options=options)
-        except NoSuchDriverException:
+        except:
             try:
                 driver = webdriver.Safari()
-            except NoSuchDriverException:
+            except:
                 print('No available browsers!')
                 raise
     
