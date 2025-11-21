@@ -9,12 +9,16 @@ from get_data import *
 from process_data import *
 from scrape_schedules import get_park_soup, get_skate_schedule
 
+def populate_data():
+    if len(os.listdir('data')) == 0:
+        get_rinks_data()
+    return None
+
+populate_data()
+
 @st.cache_data
 def get_data():
     rinks_files = list(map(lambda x: os.path.join('data', x), filter(lambda x: x.endswith('.geojson'), os.listdir('data'))))
-    if len(rinks_files) == 0:
-        get_rinks_data()
-        rinks_files = list(map(lambda x: os.path.join('data', x), filter(lambda x: x.endswith('.geojson'), os.listdir('data'))))
 
     rinks_data = convert_geodataframe_to_pandas(process_rinks_data(rinks_files))
     status_data = process_status_data(get_status_data())
