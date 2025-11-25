@@ -76,12 +76,6 @@ if park_id:
         available_programs = pd.unique(schedule['Program'])
         programs = st.multiselect('Programs', options = available_programs, default = available_programs)
 
-
-        pd.timedelta_range(start='0 day', periods=len(schedules), freq='7D')
-        index = st.select_slider('Select Week', 
-                                 options=pd.timedelta_range(start='0 day', periods=last_week.week-first_week.week+1, freq='7D'), 
-                                 format_func=lambda x: (first_week + x).strftime('%A %B %d'))
-
         calendar = calendar(
             events = filter_schedule_df_to_calendar_events(schedule, programs),
             options = calendar_options,
