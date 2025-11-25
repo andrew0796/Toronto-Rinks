@@ -1,4 +1,5 @@
 streamlit
+streamlit_calendar
 pandas
 geopandas
 plotly

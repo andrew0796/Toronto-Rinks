@@ -71,3 +71,6 @@ def get_status_data():
         if data[location]:
             locations.append(data[location][0])
     return locations
+
+if __name__ == '__main__':
+    get_rinks_data()
