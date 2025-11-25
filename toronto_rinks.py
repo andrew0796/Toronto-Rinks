@@ -8,6 +8,7 @@ import os
 
 from get_data import *
 from process_data import *
+from get_schedules import get_park_schedules
 from calendar_events import *
 
 def populate_data():
@@ -30,10 +31,10 @@ def get_data():
     return joint_data
 joint_data = get_data()
 
-@st.cache_data
-def get_schedules():
-    return pd.read_pickle('data/schedules.pkl')
-schedules = get_schedules()
+#@st.cache_data
+#def get_schedules():
+#    return pd.read_pickle('data/schedules.pkl')
+#schedules = get_schedules()
 
 st.title('Toronto Public Rinks')
 
@@ -47,7 +48,7 @@ if selected_park['selection']['points']:
 
 @st.cache_data
 def get_schedule(park_id: int) -> pd.DataFrame:
-    return schedules[schedules['locationid'] == park_id].drop(columns='locationid')
+    return get_park_schedules(park_id)
 
 calendar_options = {
     'editable': 'false',
@@ -56,14 +57,14 @@ calendar_options = {
 }
 
 @st.cache_data
-def filter_schedule_df_to_calendar_events(schedule: pd.DataFrame, programs: list[str]) -> list[dict[str: str]]:
-    return schedule_df_to_calendar_events(schedule[schedule['Program'].isin(programs)])
+def filter_schedule_df_to_calendar_events(schedule: pd.DataFrame, programs: list[str], ages: list[str]) -> list[dict[str: str]]:
+    return schedule_df_to_calendar_events(schedule[schedule['program'].isin(programs) & schedule['age'].isin(ages)])
 
 if park_id:
     schedule = get_schedule(park_id)
     st.header(selected_park['selection']['points'][0]['hovertext'])
-    first_time = schedule['Start'].min()
-    last_time = schedule['Start'].max()
+    first_time = schedule['start'].min()
+    last_time = schedule['start'].max()
 
     first_week = (first_time - pd.to_timedelta(first_time.day_of_week, unit='d')).normalize()
     last_week = (last_time - pd.to_timedelta(last_time.day_of_week, unit='d')).normalize()
@@ -73,11 +74,14 @@ if park_id:
     if schedule.empty:
         st.text('No schedule found')
     else:
-        available_programs = pd.unique(schedule['Program'])
+        available_programs = pd.unique(schedule['program'])
         programs = st.multiselect('Programs', options = available_programs, default = available_programs)
 
+        available_ages = pd.unique(schedule['age'])
+        ages = st.multiselect('Age Groups', options = available_ages, default = available_ages)
+
         calendar = calendar(
-            events = filter_schedule_df_to_calendar_events(schedule, programs),
+            events = filter_schedule_df_to_calendar_events(schedule, programs, ages),
             options = calendar_options,
             key='calendar',
         )
