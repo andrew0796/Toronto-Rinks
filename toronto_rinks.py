@@ -31,11 +31,6 @@ def get_data():
     return joint_data
 joint_data = get_data()
 
-#@st.cache_data
-#def get_schedules():
-#    return pd.read_pickle('data/schedules.pkl')
-#schedules = get_schedules()
-
 st.title('Toronto Public Rinks')
 
 fig = px.scatter_map(joint_data, lat='lat', lon='lon', 
@@ -61,19 +56,24 @@ def filter_schedule_df_to_calendar_events(schedule: pd.DataFrame, programs: list
     return schedule_df_to_calendar_events(schedule[schedule['program'].isin(programs) & schedule['age'].isin(ages)])
 
 if park_id:
-    schedule = get_schedule(park_id)
+    try:
+        schedule = get_schedule(park_id)
+    except:
+        schedule = pd.DataFrame({'start':[], 'end':[], 'program':[], 'age':[]})
+    
     st.header(selected_park['selection']['points'][0]['hovertext'])
-    first_time = schedule['start'].min()
-    last_time = schedule['start'].max()
-
-    first_week = (first_time - pd.to_timedelta(first_time.day_of_week, unit='d')).normalize()
-    last_week = (last_time - pd.to_timedelta(last_time.day_of_week, unit='d')).normalize()
-
-    calendar_options['initialDate'] = first_week.strftime('%Y-%m-%d')
 
     if schedule.empty:
         st.text('No schedule found')
     else:
+        first_time = schedule['start'].min()
+        last_time = schedule['start'].max()
+
+        first_week = (first_time - pd.to_timedelta(first_time.day_of_week, unit='d')).normalize()
+        last_week = (last_time - pd.to_timedelta(last_time.day_of_week, unit='d')).normalize()
+
+        calendar_options['initialDate'] = first_week.strftime('%Y-%m-%d')
+
         available_programs = pd.unique(schedule['program'])
         programs = st.multiselect('Programs', options = available_programs, default = available_programs)
 
