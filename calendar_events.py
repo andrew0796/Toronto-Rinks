@@ -1,5 +1,4 @@
 import pandas as pd
-import streamlit as st
 
 def schedule_df_to_calendar_events(schedule: pd.DataFrame) -> list[dict[str: str]]:
     new_schedule = schedule[['start', 'end', 'program']].copy()
