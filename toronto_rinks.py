@@ -11,6 +11,8 @@ from process_data import *
 from get_schedules import get_park_schedules
 from calendar_events import *
 
+color_cycle = px.colors.qualitative.Vivid
+
 def populate_data():
     if not os.path.exists('data'):
         os.mkdir('data')
@@ -33,18 +35,44 @@ joint_data = get_data()
 
 st.title('Toronto Public Rinks')
 
+@st.cache_data
+def get_schedule(park_id: int) -> pd.DataFrame:
+    return get_park_schedules(park_id)
+
+@st.cache_data
+def add_colours_schedule_df(schedule: pd.DataFrame) -> tuple[pd.DataFrame]:
+    codes, uniques = pd.factorize(schedule[['program', 'age']].agg(tuple, axis=1))
+
+    schedule['backgroundColor'] = list(map(lambda i: color_cycle[i%len(color_cycle)], codes))
+    schedule['borderColor'] = list(map(lambda i: color_cycle[i%len(color_cycle)], codes))
+
+    colours = pd.DataFrame({
+        'name': uniques, 
+        'colour': list(map(lambda i: color_cycle[i%len(color_cycle)], range(len(uniques))))})
+    return schedule, colours
+
+schedule = pd.DataFrame({'start':[], 'end':[], 'program':[], 'age':[], 'backgroundColor':[], 'borderColor':[]})
+colours = pd.DataFrame({'name':[], 'backgroundColor':[]})
+
+@st.cache_data
+def set_schedule_colors(park_id: int) -> tuple[pd.DataFrame]:
+    return add_colours_schedule_df(get_schedule(park_id))
+
+
 fig = px.scatter_map(joint_data, lat='lat', lon='lon', 
                      color=joint_data['Status'], labels={'color': 'Status'}, 
-                     hover_name='Public Name', hover_data=['locationid', 'Reason', 'Comments', 'PostedDate'], 
+                     hover_name='Public Name', hover_data=['locationid', 'Reason', 'Comments', 'PostedDate'],
+                     custom_data='locationid',
                      zoom=9)
 selected_park = st.plotly_chart(fig, on_select=lambda : None)
 park_id = None
 if selected_park['selection']['points']:
     park_id = selected_park['selection']['points'][0]['customdata'][0]
-
-@st.cache_data
-def get_schedule(park_id: int) -> pd.DataFrame:
-    return get_park_schedules(park_id)
+    try:
+        schedule, colours = set_schedule_colors(park_id)
+    except:
+        schedule = pd.DataFrame({'start':[], 'end':[], 'program':[], 'age':[], 'backgroundColor':[], 'borderColor':[]})
+        colours = pd.DataFrame({'name':[], 'backgroundColor':[]})
 
 calendar_options = {
     'editable': 'false',
@@ -57,11 +85,6 @@ def filter_schedule_df_to_calendar_events(schedule: pd.DataFrame, programs: list
     return schedule_df_to_calendar_events(schedule[schedule['program'].isin(programs) & schedule['age'].isin(ages)])
 
 if park_id:
-    try:
-        schedule = get_schedule(park_id)
-    except:
-        schedule = pd.DataFrame({'start':[], 'end':[], 'program':[], 'age':[]})
-    
     st.header(selected_park['selection']['points'][0]['hovertext'])
 
     if schedule.empty:
