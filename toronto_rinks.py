@@ -35,11 +35,12 @@ st.title('Toronto Public Rinks')
 
 fig = px.scatter_map(joint_data, lat='lat', lon='lon', 
                      color=joint_data['Status'], labels={'color': 'Status'}, 
-                     hover_name='Public Name', hover_data='locationid', zoom=9)
+                     hover_name='Public Name', hover_data=['locationid', 'Reason', 'Comments', 'PostedDate'], 
+                     zoom=9)
 selected_park = st.plotly_chart(fig, on_select=lambda : None)
 park_id = None
 if selected_park['selection']['points']:
-    park_id = selected_park['selection']['points'][0]['customdata']['0']
+    park_id = selected_park['selection']['points'][0]['customdata'][0]
 
 @st.cache_data
 def get_schedule(park_id: int) -> pd.DataFrame:
