@@ -38,6 +38,7 @@ with st.form('programs_ages'):
 
     days = st.pills('Select days of the week', 
                     options=range(7),
+                    default=range(7),
                     format_func=lambda i: calendar.day_name[i],
                     selection_mode='multi')
     start_end = st.slider('Select a time range', 
