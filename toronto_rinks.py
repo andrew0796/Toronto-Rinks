@@ -64,6 +64,7 @@ def reset_schedule_colours():
     st.session_state['available_ages'] = []
 
 if 'schedule' not in st.session_state:
+    st.set_page_config('Toronto Outdoor Rinks', layout='wide')
     reset_schedule_colours()
 
 @st.cache_data
