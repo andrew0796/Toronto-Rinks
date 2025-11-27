@@ -7,10 +7,10 @@ import calendar
 
 from get_schedules import get_park_schedules
 
-@st.cache_data
+@st.cache_data(show_spinner=False)
 def get_all_schedules() -> pd.DataFrame:
     schedules = []
-    pbar = st.progress(0.0, 'Gathering rink schedules')
+    pbar = st.progress(0.0, 'Gathering rink schedules...')
     locations = pd.unique(st.session_state['joint_data']['locationid'])
     for i, park_id in enumerate(locations):
         try:
@@ -19,10 +19,13 @@ def get_all_schedules() -> pd.DataFrame:
             schedules.append(schedule)
         except:
             print('issue at park', park_id)
-        pbar.progress(i/len(locations))
+        pbar.progress(i/len(locations), text='Gathering rink schedules...')
     pbar.empty()
     return pd.concat(schedules)
 all_schedules = get_all_schedules()
+
+first_time = all_schedules['start'].dt.time.min()
+last_time = all_schedules['end'].dt.time.max()
 
 @st.cache_data
 def get_available_options(schedules:pd.DataFrame):
@@ -38,8 +41,8 @@ with st.form('programs_ages'):
                     format_func=lambda i: calendar.day_name[i],
                     selection_mode='multi')
     start_end = st.slider('Select a time range', 
-                          value=(time(9,0), time(23,0)), 
-                          min_value=time(9,0), max_value=time(23,0))
+                          value=(first_time, last_time), 
+                          min_value=first_time, max_value=last_time)
 
     st.form_submit_button('Filter')
 
