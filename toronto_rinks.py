@@ -25,7 +25,7 @@ def get_data():
 
     return joint_data
 if 'joint_data' not in st.session_state:
-    st.session_state['joint_data'] = get_data()
+    st.session_state['joint_data'] = get_data().fillna('Unknown')
 
 st.set_page_config('Toronto Outdoor Rinks', layout='wide')
 st.title('Toronto Public Rinks')
