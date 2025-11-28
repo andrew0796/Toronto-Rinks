@@ -62,6 +62,7 @@ def get_status_data():
 
     r = requests.get(url, timeout=2.5)
     json = r.json()
+    r.close()
 
     if 'locations' not in json:
         raise ValueError('locations not in the JSON file')
