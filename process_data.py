@@ -1,12 +1,15 @@
 import pandas as pd
 import geopandas as gpd
 
+# manually constructed
+corrected_locationids = {1068:509, 816:1012, 818:847, 3492:189, 819:924, 817:861, 805:878, 807:870, 809:871, 808:2642}
+
 def process_rinks_data(datafiles: list[str]) -> gpd.GeoDataFrame:
     dataframes = []
     for file in datafiles:
         rinks = gpd.read_file(file)
         rinks.set_index('Asset ID', inplace=True)
-        rinks['locationid'] = pd.to_numeric(rinks['locationid'])
+        rinks['locationid'] = pd.to_numeric(rinks['locationid']).replace(corrected_locationids)
         dataframes.append(rinks)
     return pd.concat(dataframes)
 
