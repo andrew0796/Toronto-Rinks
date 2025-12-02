@@ -9,11 +9,9 @@ from calendar_events import *
 
 color_cycle = px.colors.qualitative.Vivid
 
-@st.cache_data
 def get_schedule(park_id: int) -> pd.DataFrame:
     return get_park_schedules(park_id)
 
-@st.cache_data
 def add_colours_schedule_df(schedule: pd.DataFrame) -> tuple[pd.DataFrame]:
     codes, uniques = pd.factorize(schedule[['program', 'age']].agg(tuple, axis=1))
 
@@ -25,7 +23,7 @@ def add_colours_schedule_df(schedule: pd.DataFrame) -> tuple[pd.DataFrame]:
         'colour': list(map(lambda i: color_cycle[i%len(color_cycle)], range(len(uniques))))})
     return schedule, colours
 
-@st.cache_data
+@st.cache_data(show_spinner='Fetching schedule...')
 def set_schedule_colors(park_id: int) -> tuple[pd.DataFrame]:
     return add_colours_schedule_df(get_schedule(park_id))
 
