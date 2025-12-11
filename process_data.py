@@ -23,7 +23,7 @@ def convert_geodataframe_to_pandas(gdf: gpd.GeoDataFrame) -> pd.DataFrame:
 
 def process_status_data(data: dict[object]) -> pd.DataFrame:
     dataframe = pd.DataFrame(data).set_index('LocationID')
-    dataframe['PostedDate'] = pd.to_datetime(dataframe['PostedDate'], unit='s')
+    dataframe['PostedDate'] = pd.to_datetime(dataframe['PostedDate'])
     rink_status_dict = {0: 'Closed', 1: 'Open', 2: 'Service Alert'}
     dataframe['Status'] = dataframe['Status'].map(rink_status_dict)
     
